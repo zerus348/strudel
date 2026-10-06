@@ -1,0 +1,158 @@
+// NEON BREACH — industrial midtempo bass / cyberpunk, 108 bpm, C phrygian-ish
+// Structure (bars): intro vox+bass 8 | arp rise 8 | beat in 8 | main 16 | breakdown (half-time) 8 | main 2 16 | outro 4
+// Sliders (drag in the editor): acid cutoff/res/env/drive, arp brightness, vocal hpf/lpf, lead cutoff/fold.
+// Needs the local vocal samples: samples/vox (served by the dev server, see docs/WORKFLOW.md)
+
+await samples('http://localhost:5173/strudel.json')
+setcps(108/4/60)
+
+// ---------- controls ----------
+const cut    = slider(1100, 150, 6000)   // acid filter cutoff
+const res    = slider(.65, 0, 1)         // acid resonance (ladder filter)
+const env    = slider(4, 0, 8)           // acid filter-envelope depth
+const drive  = slider(4, 0, 12)          // acid wavefold/saturation
+const arpCut = slider(3500, 300, 8000)   // arp max brightness
+const vhp    = slider(250, 20, 1500)     // vocal highpass
+const vlp    = slider(2800, 400, 12000)  // vocal lowpass
+const leadCut  = slider(2200, 200, 8000) // breakdown lead cutoff
+const leadFold = slider(6, 0, 14)        // breakdown lead wavefold
+
+// ---------- helpers ----------
+const z = silence
+const S = (a, b, c, d, e, f, g) => arrange([8, a], [8, b], [8, c], [16, d], [8, e], [16, f], [4, g])
+const prog = note("<0 0 1 3>")            // root movement per bar: c c db eb
+
+const vx = p => p.hpf(vhp).lpf(vlp).distort("2:.6:soft").crush(10).speed(.92)
+  .room(.85).roomsize(7).delay(.4).delaytime(.375).delayfeedback(.55).orbit(2)
+
+const acid = p => p.s("sawtooth").ftype("ladder")
+  .lpf(cut).lpq(res).lpenv(env).lpa(.003).lpd(.17).lps(0)
+  .attack(.003).decay(.2).sustain(.6).release(.06).clip(.9)
+  .distort(drive.fmap(d => d + ':.35:fold'))
+  .velocity(.5).delay(.25).delaytime(.1875).delayfeedback(.35).orbit(3)
+
+// ---------- material ----------
+const arpNotes = note("c2 eb2 g2 bb2").fast(4)                 // 16ths
+const acidLine = note("c2 c2 [c3 db2] ~ c2 ~ eb2 c3 ~ c2 g2 ~ c2 bb2 c3 ~").add(prog)
+  .gain("1 .6 .9 .6 1 .6 .8 1 .6 .7 1 .6 .8 1 .9 .6")
+const acidLine2 = note("c2 c2 [c3 db2] c2 c2 ~ eb2 c3 [g2 f2] c2 g2 ~ c2 bb2 c3 [c4 c3]").add(prog)
+  .gain("1 .6 .9 .7 1 .6 .8 1 .7 .7 1 .6 .8 1 .9 .8")
+const bassMain = note("~ c1 c1 ~ ~ c1 ~ c1 ~ c1 c1 ~ ~ c1 ~ [c1 c2]").add(prog)
+
+const bassPulse = note("c1*8").s("triangle").lpf(180).decay(.25).sustain(.2)
+  .gain(sine.range(.35,.6).slow(4)).room(.4)
+const bassGrowl = p => p.s("sawtooth").lpf(sine.range(250,700).slow(8)).lpq(6)
+  .distort("3:.4:fold").decay(.18).sustain(.5).clip(.9).gain(.55).orbit(4)
+const sub = p => p.s("sine").gain(.8).orbit(4)
+
+const kick = (g=1) => stack(
+  note("c1*4").s("sine").penv(36).pdecay(.045).decay(.3).sustain(0).distort("2:.45").gain(g),
+  s("bd*4").bank("RolandTR909").lpf(2500).gain(.5*g))
+const clap = (g=1) => stack(
+  s("~ cp ~ cp").bank("RolandTR909").room(.08).gain(.85*g),
+  s("~ sd ~ sd").bank("RolandTR909").lpf(4500).distort("1:.5:hard").gain(.4*g))
+const hats = s("hh(3,16,2)").bank("RolandTR909").hpf(1500).lpf(6500).gain(.28) // deliberately sparse
+const perc = s("rim(3,8,1)").bank("RolandTR909").lpf(3000).gain(.35).room(.2)
+
+const riser = (len) => s("pink").lpf(saw.range(300, 9000)).hpf(300).gain(saw.range(.05,.5)).room(.4)
+  .slow(len).late(8-len)
+
+// ---------- arrangement ----------
+// vocals: "System breach detected" / "Neural link established" / "Wake up..." / "No future..." / "Override" / "Terminate" / "Ghost in the machine"
+$: S(
+  vx(s("<vox:2 ~ ~ ~ vox:0 ~ ~ ~>")),
+  vx(s("<~ ~ ~ vox:6 ~ ~ vox:1 ~>")),
+  vx(s("<~ ~ vox:4 ~>")),
+  vx(s("<~ ~ ~ vox:5>")).gain(.8),
+  vx(s("<~ ~ vox:3 ~ ~ ~ vox:6 vox:5>")).gain(1.1),
+  vx(s("<~ ~ ~ vox:5 ~ ~ ~ vox:4>")).gain(.8),
+  vx(s("<vox:0 ~ ~ ~>"))
+)
+
+// drone: ominous bed
+$: S(
+  note("c2,g2,bb2").s("sawtooth").lpf(sine.range(200,500).slow(8)).attack(2).release(2).slow(2).room(.8).gain(.18).orbit(2),
+  note("c2,g2,bb2").s("sawtooth").lpf(sine.range(300,900).slow(8)).attack(2).release(2).slow(2).room(.8).gain(.18).orbit(2),
+  note("c2,g2,bb2").s("sawtooth").lpf(500).attack(2).release(2).slow(2).room(.8).gain(.14).orbit(2),
+  z, z, z, z
+)
+
+// intro bass: simple, pulsing, mysterious (enters at bar 3)
+$: S(
+  bassPulse.mask("<0 0 1 1 1 1 1 1>"),
+  bassPulse,
+  bassPulse.lpf(sine.range(180,400).slow(8)),
+  z, z, z, z
+)
+
+// arp: starts low and rises, gets abrasive
+const arpRise = (lo, hi, dist) => arpNotes.add(note("<0 0 3 3 5 7 10 12>"))
+  .s("sawtooth").lpf(saw.range(lo, hi).slow(8).mul(arpCut.div(3500))).lpq(saw.range(2,14).slow(8))
+  .distort(saw.range(0,dist).slow(8)).decay(.1).sustain(0).gain(saw.range(.2,.5).slow(8))
+  .delay(.3).delaytime(.1875).delayfeedback(.4).orbit(3)
+$: S(
+  z,
+  arpRise(250, 3500, 6),
+  arpNotes.s("sawtooth").lpf(arpCut.mul(.7)).lpq(10).distort("5:.4:fold").decay(.1).sustain(0).gain(.4).orbit(3)
+    .mask("<1 1 1 1 1 1 0 1>"),
+  arpNotes.add(note(12)).s("sawtooth").lpf(sine.range(800,2500).slow(4)).lpq(8).decay(.08).sustain(0)
+    .gain(.22).distort("3:.4:fold").orbit(3),
+  z,
+  arpNotes.add(note(12)).s("sawtooth").lpf(sine.range(900,3000).slow(4)).lpq(8).decay(.08).sustain(0)
+    .gain(.25).distort("3:.4:fold").orbit(3),
+  z
+)
+
+// kick
+$: S(
+  z, z,
+  kick(.7).lpf(saw.range(120,5000).slow(8)).mask("<1 1 1 1 1 1 1 1>"),
+  kick(1),
+  kick(1).struct("1 ~ ~ ~").mask("<1 1 1 1 1 1 1 0>"),              // half-time: kick on 1 only; last bar drops
+  kick(1),
+  kick(1).velocity(saw.range(1,.2).slow(4))
+)
+
+// snare/clap: low at first, builds
+$: S(
+  z, z,
+  clap(.9).mask("<0 0 0 0 1 1 1 1>"),
+  clap(1),
+  s("~ ~ ~ ~ sd ~ ~ ~").bank("RolandTR909").distort("2:.5:hard").room(.15).gain(.9)
+    .mask("<1 1 1 1 1 1 1 0>"),                                       // half-time: snare on beat 3
+  clap(1),
+  z
+)
+
+// minimal top-end + percussion + riser
+$: S(z, z, riser(4), hats.mask("<0 0 0 1>"), z, stack(hats, perc.mask("<0 1>")), z)
+
+// acid 303 (wavefolded, slider-controlled)
+$: S(
+  z, z, z,
+  acid(acidLine),
+  z,
+  acid(acidLine2),
+  acid(acidLine).mask("<1 1 0 0>")
+)
+
+// bass: main groove, half-time drone in breakdown
+$: S(
+  z, z, z,
+  bassGrowl(bassMain),
+  bassGrowl(note("c1 ~ ~ ~ db1 ~ ~ ~").slow(2)).lpf(sine.range(200,900).slow(8)),
+  bassGrowl(bassMain),
+  sub(note("c1")).slow(2)
+)
+$: S(z, z, z, sub(bassMain), z, sub(bassMain), z)
+
+// breakdown lead — alternates with the vocal (lead bars 1-2, 4-6; vocal in 3 and 7-8)
+$: S(
+  z, z, z, z,
+  note("<c4 eb4 g4 f4>/2").add(note("<0 0 -2 0 0 0 0 0>")).s("supersaw").unison(5).detune(.3)
+    .lpf(leadCut).lpq(4).distort(leadFold.fmap(d => d + ':.35:sinefold'))
+    .attack(.01).release(.4).clip(1).gain(.45).delay(.4).delaytime(.375).delayfeedback(.45).room(.4).orbit(3)
+    .mask("<1 1 0 1 1 1 0 0>"),
+  z, z
+)
+

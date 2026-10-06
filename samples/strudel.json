@@ -1,0 +1,12 @@
+{
+  "_base": "http://localhost:5173/",
+  "vox": [
+    "vox/01.wav",
+    "vox/02.wav",
+    "vox/03.wav",
+    "vox/04.wav",
+    "vox/05.wav",
+    "vox/06.wav",
+    "vox/07.wav"
+  ]
+}
