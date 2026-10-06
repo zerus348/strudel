@@ -1,0 +1,7 @@
+node_modules/
+dist/
+out/
+.idea/workspace.xml
+.idea/shelf/
+.idea/httpRequests/
+.idea/dictionaries/

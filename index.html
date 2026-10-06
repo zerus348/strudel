@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Strudel Studio</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #222; color: #ddd; font-family: system-ui, sans-serif; }
+      #bar { display: flex; gap: .75rem; align-items: center; padding: .4rem .8rem; background: #111; font-size: 13px; }
+      #bar .grow { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      #state { padding: 1px 8px; border-radius: 9px; background: #444; }
+      #state.playing { background: #2a7; color: #000; }
+      #state.error { background: #c33; color: #fff; }
+      #overlay { position: fixed; inset: 0; background: #000c; display: grid; place-items: center; font-size: 1.4rem; cursor: pointer; z-index: 10; }
+      #err { color: #f88; white-space: pre-wrap; padding: .4rem .8rem; font-family: monospace; }
+    </style>
+  </head>
+  <body>
+    <div id="overlay">Click once to enable audio</div>
+    <div id="bar">
+      <strong>Strudel Studio</strong>
+      <span class="grow" id="file">waiting for a song…</span>
+      <span id="state">stopped</span>
+      <span>Ctrl+Enter eval · Ctrl+. stop</span>
+    </div>
+    <div id="err"></div>
+    <div id="root"><strudel-editor id="repl"></strudel-editor></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

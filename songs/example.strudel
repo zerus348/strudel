@@ -1,0 +1,10 @@
+// Example song. Edit and save: if it is playing, the change is swapped in at the next cycle.
+setcps(120/4/60) // 120 bpm in 4/4
+
+$: s("bd*4").bank("RolandTR909").gain(.9)
+$: s("~ cp").bank("RolandTR909").room(.3)
+$: s("hh*8").bank("RolandTR909").gain(sine.range(.3,.7))
+
+$: note("<c2 c2 eb2 g1>").s("sawtooth").lpf(sine.range(300,900).slow(4)).gain(.6)
+
+$: n("0 2 4 7 4 2").scale("C4:minor").s("triangle").delay(.4).room(.5).gain(.5)
