@@ -1,10 +1,49 @@
-// Example song. Edit and save: if it is playing, the change is swapped in at the next cycle.
-setcps(120/4/60) // 120 bpm in 4/4
+// based on https://www.youtube.com/watch?v=hFSwWzxrqUA
 
-$: s("bd*4").bank("RolandTR909").gain(.9)
-$: s("~ cp").bank("RolandTR909").room(.3)
-$: s("hh*8").bank("RolandTR909").gain(sine.range(.3,.7))
+setCpm(136 / 4)
 
-$: note("<c2 c2 eb2 g1>").s("sawtooth").lpf(sine.range(300,900).slow(4)).gain(.6)
+// Reusable filter for synth
+register('acidenv', (x, pat) => pat.lpf(100)
+    .lpenv(x * 9).lps(.2).lpd(.12)
+)
 
-$: n("0 2 4 7 4 2").scale("C4:minor").s("triangle").delay(.4).room(.5).gain(.5)
+// LEAD INTRO
+$: n("<0 4 0 9 7>*16".add("<0>*2")).scale("g:minor").trans(-12)
+    .o(3).s("sawtooth").acidenv(slider(0.566))
+    .delay(.4).pan(rand)
+    .fm(.8).fmwave('white')
+    ._pianoroll()
+
+// LEAD MAIN PART
+_$: n("<0 4 0 9 7>*16".add("<7 _ _ 6 5 _ _ 6>*2")).scale("g:minor")
+    .o(3).s("sawtooth").acidenv(slider(0.532))
+    .delay(.4).pan(rand)
+    .fm(.8).fmwave('white')
+    ._pianoroll()
+
+// BASS INTRO
+$: n("<0>*16").scale("g:minor").trans(-24)
+    .o(4).s("supersaw").acidenv(slider(0.673))
+    ._pianoroll()
+
+// BASS MAIN PART
+_$: n("<7 _ _ 6 5 _ <5 3> <6 4>>*2").scale("g:minor").trans(-24)
+    .detune(rand)
+    .o(4).s("supersaw").acidenv(slider(1))
+    ._pianoroll()
+
+// MORE INTENSITY (not sure what this does)
+_$: s("white!4").att(.5).o(6)
+
+// KICK
+$: s("bd:2!4")
+    .duck("3:4:5:6")
+    .duckdepth(.8)
+    .duckattack(.16)
+
+// CLAP
+_$: s("cp:9!4").o(8)
+
+// HIGH DRUM
+$: s("top:1/2").fit().o(5)
+    ._pianoroll()
