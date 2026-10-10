@@ -27,19 +27,19 @@ const hat = s("hh(3,16,2)")
     .bank("RolandTR909")
     .hpf(1500)
     .lpf(6500)
-    .gain(.8)
+    .gain(1.1)
     ._pianoroll()
 
 const rim = s("rim(3,8,1)")
     .bank("RolandTR909")
     .lpf(3000)
-    // .gain(.35)
+    .gain(1.2)
     .room(.2)
     ._pianoroll()
 
 const bass =
-    // n("<0@3 ~ 0@3 ~ [0 0] 0@3 ~ [0 12]@2 ~>*16") // offset beat
-        n("<~ 0 0 ~ ~ 0 ~ 0 ~ 0 0 ~ ~ 0 ~ [0 12]>*16") // syncopated beat
+    n("<0@3 ~ 0@3 ~ [0 0] 0@3 ~ [0 12]@2 ~>*16") // offset beat
+        //     n("<~ 0 0 ~ ~ 0 ~ 0 ~ 0 0 ~ ~ 0 ~ [0 12]>*16") // syncopated beat
         // n("<0@3 ~ 0@3 ~ ~ ~ ~ 0@3 ~ ~>*16").late(.05) // irregular rhythm, offset to 4/4 beat
         .add(rootProgression)
         .scale("c2:phrygian")
@@ -79,12 +79,60 @@ const lead = n("<4 0>*16")
     .o(3)
     ._pianoroll()
 
-// TODO later: Arrage parts with stack
+const introBass = n("0*4")
+    .slow(4)
+    // .cut(1.9)
+    .scale("C2:phrygian")
+    .s("supersaw")
+    .unison(5).detune(.8).spread(.9)
+    .penv(2).pattack(.3).pdecay(0.8).psustain(-2).panchor(0)
+    .attack(.05).sustain(1).release(.1)
+    .lpf(fadeIn.range(300, 2500).slow(4)).lpq(8)   // optional: opens up over the intro
+    .distort("3:.5").gain(.5)
+    .phaser(sine.range(.3, .5)).phaserdepth(.6)
+    .room(.4)
+    .delay("<0 0 0 0 .15 .4 .6 0>").delaytime(.4167).delayfeedback(.65).delaysync(1)
+    .room("<0 0 0 0 .1 .2 .8 0>").roomfade(.6)
+    .mask("<1 1 1 1 1 1 1 0>")
+    .o(5)
+    ._pianoroll()
 
-$: kick
-$: snare
-$: hat
-$: rim
-S: bass
-$: pulse
-$: lead
+const introFill = s("~@12 ht mt lt lt")
+    .bank("RolandTR909")
+    .lpf(2500).distort("2:.4").room(.3)
+    ._pianoroll()
+
+// $: kick
+// $: snare
+// $: hat
+// $: rim
+// S: bass
+// $: pulse
+// _$: lead
+
+const intro = stack(
+    introBass,
+)
+
+const partA = stack(
+    kick,
+    snare,
+    hat,
+    rim,
+    bass,
+    pulse,
+)
+
+const partB = stack(
+    partA,
+    lead
+)
+
+$main: stack(
+    seqPLoop(
+        [0, 7, intro],
+        [7, 8, introFill],
+        [8, 16, partA],
+        [16, 23, partB],
+    )
+)
