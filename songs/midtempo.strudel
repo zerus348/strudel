@@ -4,8 +4,12 @@ await samples('http://localhost:5173/strudel.json')
 
 setcpm(108 / 4)
 
-const rootProgression = n("<0 0 3 1>")
-const alternateProgression = n("<0 0 1 0>")
+const leadLineA = "<4 0>*16"
+const leadLineB = "<0 2 4 7>*16"
+const leadLineC = "<0 7 4 2>*16"
+
+const rootProgression = n("<0 0 1 0>")
+const alternateProgression = n("<0 0 3 1>")
 const fadeIn = saw.slow(1) // fade in
 
 const leadCut = slider(3500, 300, 8000)
@@ -48,11 +52,11 @@ const rim = stack(
     .o(6)
     ._pianoroll()
 
-const bass =
+const bass = (progression) =>
     n("<0@3 ~ 0@3 ~ [0 0] 0@3 ~ [0 12]@2 ~>*16") // offset beat
         //     n("<~ 0 0 ~ ~ 0 ~ 0 ~ 0 0 ~ ~ 0 ~ [0 12]>*16") // syncopated beat
         // n("<0@3 ~ 0@3 ~ ~ ~ ~ 0@3 ~ ~>*16").late(.05) // irregular rhythm, offset to 4/4 beat
-        .add(rootProgression)
+        .add(progression)
         .scale("c2:phrygian")
         .s("sawtooth")
         .att(0.3)
@@ -67,39 +71,42 @@ const bass =
         ._pianoroll()
         ._scope()
 
-const pulse = n("<0!4 0 0 0>*16")
-    .add(rootProgression)
-    .scale("C2:phrygian")
-    .s("triangle").lpf(180).decay(.25).sustain(.2)
-    .gain(sine.range(.6, .9).slow(4))
-    .room(.4)
-    .o(4)
-    ._pianoroll()
+const pulse = (progression) =>
+    n("<0!4 0 0 0>*16")
+        .add(progression)
+        .scale("C2:phrygian")
+        .s("triangle").lpf(180).decay(.25).sustain(.2)
+        .gain(sine.range(.6, .9).slow(4))
+        .room(.4)
+        .o(4)
+        ._pianoroll()
 
-const lead = n("<4 0>*16")
-    .add(rootProgression)
-    .mask("<1 0 1 0 1 0 1 0>")
-    .scale("C3:phrygian") // use C2.phrygian for a bassier sound
-    .s("sawtooth")
-    .lpf(fadeIn.range(250, 3000).mul(leadCut.div(3500)))
-    .lpq(fadeIn.range(1, 14))
-    .distort(fadeIn.range(0, 6)).decay(.1).sustain(0).gain(fadeIn.range(.06, .15))
-    .delay(.1).delaytime(.3).delayfeedback(.6)
-    .room(.5).roomsize(6)
-    .postgain(.4)
-    .o(3)
-    ._pianoroll()
+const lead = (leadLine, progression) =>
+    n(leadLine)
+        .add(progression)
+        .mask("<1 0 1 0 1 0 1 0>")
+        .scale("C3:phrygian") // use C2.phrygian for a bassier sound
+        .s("sawtooth")
+        .lpf(fadeIn.range(250, 3000).mul(leadCut.div(3500)))
+        .lpq(fadeIn.range(1, 14))
+        .distort(fadeIn.range(0, 6)).decay(.1).sustain(0).gain(fadeIn.range(.06, .15))
+        .delay(.1).delaytime(.3).delayfeedback(.6)
+        .room(.5).roomsize(6)
+        .postgain(.4)
+        .o(3)
+        ._pianoroll()
 
-const leadHigh = n("<7 ~ 8 7>")           // one note per cycle: root, rest, ♭2, root
-    .add(rootProgression)
-    .scale("C3:phrygian")                  // degree 7 = root an octave up
-    .s("supersaw").unison(3).detune(.3).spread(.7)
-    .attack(.05).sustain(.6).release(.4)
-    .lpf(2500).lpq(4)
-    .gain(.3)
-    .delay(.3).delaytime(.4167).delayfeedback(.5)
-    .o(7)                                  // own orbit: its delay/room won't affect the lead's
-    ._pianoroll()
+const leadHigh = (progression) =>
+    n("<7 ~ 8 7>")           // one note per cycle: root, rest, ♭2, root
+        .add(progression)
+        .scale("C3:phrygian")                  // degree 7 = root an octave up
+        .s("supersaw").unison(3).detune(.3).spread(.7)
+        .attack(.05).sustain(.6).release(.4)
+        .lpf(2500).lpq(4)
+        .gain(.3)
+        .delay(.3).delaytime(.4167).delayfeedback(.5)
+        .o(7)                                  // own orbit: its delay/room won't affect the lead's
+        ._pianoroll()
 
 const introBass = n("0*4")
     .slow(4)
@@ -124,44 +131,72 @@ const introFill = s("~@12 ht mt lt lt")
     .lpf(2500).distort("2:.4").room(.3)
     ._pianoroll()
 
-// $: kick
-// $: snare
-// $: hat
-// $: rim
-// S: bass
-// $: pulse
-// _$: lead
-
 const intro = stack(
     introBass,
 )
 
-const partA = stack(
-    kick,
-    snare,
-    hat,
-    rim,
-    bass,
-    pulse,
-)
+const basePart = (progression) =>
+    stack(
+        kick,
+        snare,
+        hat,
+        rim,
+        bass(progression),
+        pulse(progression),
+    )
 
-const partB = stack(
-    partA,
-    leadHigh
-)
+const partA = (progression) =>
+    stack(
+        basePart(progression),
+        leadHigh(progression).mask("<1 0>"),
+        lead(leadLineA, progression).mask("<0 1>"),
+    )
 
-const partC = stack(
-    partB,
-    lead
-)
+const partB = (progression) =>
+    stack(
+        basePart(progression),
+        leadHigh(progression),
+        lead(leadLineA, progression),
+    )
+
+const partC = (progression) =>
+    stack(
+        basePart(progression),
+        leadHigh(progression).phaser(sine.range(.5, .8)).phaserdepth(.4),
+        lead(leadLineB, progression).off(1 / 8, add(7)),
+    )
+
+const partD = (progression) =>
+    stack(
+        basePart(progression),
+        leadHigh(progression).phaser(sine.range(.5, .8)).phaserdepth(.4),
+        lead(leadLineB, progression).off(1 / 8, add(7)),
+        lead(leadLineC, progression).off(1 / 8, add(7)),
+    )
+
+const partE = (progression) =>
+    stack(
+        basePart(progression),
+        lead(leadLineC, progression).off(1 / 8, add(7)),
+    )
+
+const outro = lead(leadLineB, rootProgression).off(1 / 8, add(7))
 
 const main = stack(
     seqPLoop(
         [0, 7, intro],
         [7, 8, introFill],
-        [8, 16, partA],
-        [16, 24, partB],
-        [14, 32, partC],
+        [8, 16, basePart(rootProgression)],
+        [16, 20, partA(rootProgression)],
+        [20, 24, partA(alternateProgression)],
+        [24, 28, partB(rootProgression)],
+        [28, 32, partB(alternateProgression)],
+        [32, 36, partC(alternateProgression)],
+        [36, 40, partC(rootProgression)],
+        [40, 44, partD(rootProgression)],
+        [44, 48, partE(rootProgression)],
+        [47, 49, outro],
+        [49, 50, silence],
     )
 )
 
