@@ -90,6 +90,17 @@ const lead = n("<4 0>*16")
     .o(3)
     ._pianoroll()
 
+const leadHigh = n("<7 ~ 8 7>")           // one note per cycle: root, rest, ♭2, root
+    .add(rootProgression)
+    .scale("C3:phrygian")                  // degree 7 = root an octave up
+    .s("supersaw").unison(3).detune(.3).spread(.7)
+    .attack(.05).sustain(.6).release(.4)
+    .lpf(2500).lpq(4)
+    .gain(.3)
+    .delay(.3).delaytime(.4167).delayfeedback(.5)
+    .o(7)                                  // own orbit: its delay/room won't affect the lead's
+    ._pianoroll()
+
 const introBass = n("0*4")
     .slow(4)
     // .cut(1.9)
@@ -136,6 +147,11 @@ const partA = stack(
 
 const partB = stack(
     partA,
+    leadHigh
+)
+
+const partC = stack(
+    partB,
     lead
 )
 
@@ -144,7 +160,8 @@ const main = stack(
         [0, 7, intro],
         [7, 8, introFill],
         [8, 16, partA],
-        [16, 23, partB],
+        [16, 24, partB],
+        [14, 32, partC],
     )
 )
 
