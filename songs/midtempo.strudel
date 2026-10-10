@@ -11,11 +11,11 @@ const fadeIn = saw.slow(1) // fade in
 const leadCut = slider(3500, 300, 8000)
 
 const kick = stack(
-    n("c*4").s("sine").penv(36).pdecay(.045).decay(.3).sustain(0).distort("2:.45"),
-    s("bd*4").bank("RolandTR909").lpf(2500)
+    n("c1*4").s("sine").penv(48).pdecay(.03).decay(.2).sustain(0).distort("3:.4"),
+    s("bd*4").bank("RolandTR909").hpf(120).lpf(5000)
 ).duck("3:4:5:6")
-    .duckdepth(.7)
-    .duckattack(.16)
+    .duckdepth(.85)
+    .duckattack(.1)
     ._pianoroll()
 
 const snare = stack(
@@ -128,7 +128,9 @@ const partB = stack(
     lead
 )
 
-$main: stack(
+$: partA
+
+_$main: stack(
     seqPLoop(
         [0, 7, intro],
         [7, 8, introFill],
