@@ -128,9 +128,7 @@ const partB = stack(
     lead
 )
 
-$: partA
-
-_$main: stack(
+const main = stack(
     seqPLoop(
         [0, 7, intro],
         [7, 8, introFill],
@@ -138,3 +136,5 @@ _$main: stack(
         [16, 23, partB],
     )
 )
+
+$: main
