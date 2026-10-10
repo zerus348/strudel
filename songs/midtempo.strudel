@@ -10,7 +10,7 @@ const fadeIn = saw.slow(1) // fade in
 
 const leadCut = slider(3500, 300, 8000)
 
-$KICK: stack(
+const kick = stack(
     n("c*4").s("sine").penv(36).pdecay(.045).decay(.3).sustain(0).distort("2:.45"),
     s("bd*4").bank("RolandTR909").lpf(2500)
 ).duck("3:4:5:6")
@@ -18,29 +18,29 @@ $KICK: stack(
     .duckattack(.16)
     ._pianoroll()
 
-$SNARE: stack(
+const snare = stack(
     s("~ cp ~ cp").bank("RolandTR909").room(.08),
     s("~ sd ~ sd").bank("RolandTR909").lpf(4500).distort("1:.5:hard"))
     ._pianoroll()
 
-$HAT: s("hh(3,16,2)")
+const hat = s("hh(3,16,2)")
     .bank("RolandTR909")
     .hpf(1500)
     .lpf(6500)
     .gain(.8)
     ._pianoroll()
 
-$RIM: s("rim(3,8,1)")
+const rim = s("rim(3,8,1)")
     .bank("RolandTR909")
     .lpf(3000)
     // .gain(.35)
     .room(.2)
     ._pianoroll()
 
-$BASS:
-    n("<0@3 ~ 0@3 ~ [0 0] 0@3 ~ [0 12]@2 ~>*16") // offset beat
-    // n("<~ 0 0 ~ ~ 0 ~ 0 ~ 0 0 ~ ~ 0 ~ [0 12]>*16") // syncopated beat
-    // n("<0@3 ~ 0@3 ~ ~ ~ ~ 0@3 ~ ~>*16").late(.05) // irregular rhythm, offset to 4/4 beat
+const bass =
+    // n("<0@3 ~ 0@3 ~ [0 0] 0@3 ~ [0 12]@2 ~>*16") // offset beat
+        n("<~ 0 0 ~ ~ 0 ~ 0 ~ 0 0 ~ ~ 0 ~ [0 12]>*16") // syncopated beat
+        // n("<0@3 ~ 0@3 ~ ~ ~ ~ 0@3 ~ ~>*16").late(.05) // irregular rhythm, offset to 4/4 beat
         .add(rootProgression)
         .scale("c2:phrygian")
         .s("sawtooth")
@@ -56,7 +56,7 @@ $BASS:
         ._pianoroll()
         ._scope()
 
-$PULSE: n("<0!4 0 0 0>*16")
+const pulse = n("<0!4 0 0 0>*16")
     .add(rootProgression)
     .scale("C2:phrygian")
     .s("triangle").lpf(180).decay(.25).sustain(.2)
@@ -65,7 +65,7 @@ $PULSE: n("<0!4 0 0 0>*16")
     .o(4)
     ._pianoroll()
 
-$LEAD: n("<4 0>*16")
+const lead = n("<4 0>*16")
     .add(rootProgression)
     .mask("<1 0 1 0 1 0 1 0>")
     .scale("C3:phrygian") // use C2.phrygian for a bassier sound
@@ -78,3 +78,13 @@ $LEAD: n("<4 0>*16")
     .postgain(.4)
     .o(3)
     ._pianoroll()
+
+// TODO later: Arrage parts with stack
+
+$: kick
+$: snare
+$: hat
+$: rim
+S: bass
+$: pulse
+$: lead
