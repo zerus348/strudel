@@ -6,7 +6,7 @@ const leadLineA = "<4 0>*16"
 const leadLineB = "<0 2 4 7>*16"
 const leadLineC = "<0 7 4 2>*16"
 
-const introProgression = "<[0,4,7,9] [0,2,5,7] [0,3,5,7] [0,4,7,9]>"
+const introProgression = "<[0,4,7,9] [0,2,5,7] [0,3,5,7] [0,4,7,9]>/2"
 
 const rootProgression = n("<0 0 1 0>")
 const alternateProgression = n("<0 0 3 1>")
@@ -165,18 +165,16 @@ const introFill = s("~@12 ht mt lt lt")
     ._pianoroll()
 
 const intro = stack(
-    introAtmos(introProgression).mask("<1@15 0>"),
-    introPad(introProgression).mask("<0@4 1@7 0>"),
-    introShimmer(introProgression).mask("<0@6 1@5 0>"),
-    introBass.mask("<0@8 1@3 0>"),
+    introAtmos(introProgression).mask("<1@21 0@3>"),
+    introPad(introProgression).mask("<0@8 1@14 0@2>"),
+    introShimmer(introProgression).mask("<0@12 1@10 0@2>"),
+    introBass.mask("<0@16 <1@2 0 0>@2>"),
 )
 
 const basePart = (progression) =>
     stack(
         kick,
         snare,
-        hat,
-        rim,
         bass(progression),
         pulse(progression),
     )
@@ -184,6 +182,8 @@ const basePart = (progression) =>
 const partA = (progression) =>
     stack(
         basePart(progression),
+        hat,
+        rim,
         leadHigh(progression).mask("<1 0>"),
         lead(leadLineA, progression).mask("<0 1>"),
     )
@@ -191,6 +191,8 @@ const partA = (progression) =>
 const partB = (progression) =>
     stack(
         basePart(progression),
+        hat,
+        rim,
         leadHigh(progression),
         lead(leadLineA, progression),
     )
@@ -198,6 +200,8 @@ const partB = (progression) =>
 const partC = (progression) =>
     stack(
         basePart(progression),
+        hat,
+        rim,
         leadHigh(progression).phaser(sine.range(.5, .8)).phaserdepth(.4),
         lead(leadLineB, progression).off(1 / 8, add(7)),
     )
@@ -205,6 +209,8 @@ const partC = (progression) =>
 const partD = (progression) =>
     stack(
         basePart(progression),
+        hat,
+        rim,
         leadHigh(progression).phaser(sine.range(.5, .8)).phaserdepth(.4),
         lead(leadLineB, progression).off(1 / 8, add(7)),
         lead(leadLineC, progression).off(1 / 8, add(7)),
@@ -220,19 +226,19 @@ const outro = lead(leadLineB, rootProgression).off(1 / 8, add(7))
 
 const main = stack(
     seqPLoop(
-        [0, 7, intro],
-        [7, 8, introFill],
-        [8, 16, basePart(rootProgression)],
-        [16, 20, partA(rootProgression)],
-        [20, 24, partA(alternateProgression)],
-        [24, 28, partB(rootProgression)],
-        [28, 32, partB(alternateProgression)],
-        [32, 36, partC(alternateProgression)],
-        [36, 40, partC(rootProgression)],
-        [40, 44, partD(rootProgression)],
-        [44, 48, partE(rootProgression)],
-        [47, 49, outro],
-        [49, 50, silence],
+        [0, 23, intro],
+        [23, 24, introFill],
+        [24, 28, basePart(rootProgression)],
+        [28, 32, partA(rootProgression)],
+        [32, 36, partA(alternateProgression)],
+        [36, 40, partB(rootProgression)],
+        [40, 44, partB(alternateProgression)],
+        [44, 48, partC(alternateProgression)],
+        [48, 52, partC(rootProgression)],
+        [52, 56, partD(rootProgression)],
+        [56, 60, partE(rootProgression)],
+        [59, 61, outro],
+        [61, 64, silence],
     )
 )
 
