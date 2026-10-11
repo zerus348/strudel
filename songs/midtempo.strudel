@@ -238,8 +238,8 @@ const main = seqPLoop(
     [48, 52, partC(rootProgression)],
     [52, 56, partD(rootProgression)],
     [56, 60, partE(rootProgression)],
-    [60, 68, outro],
-    [68, 72, silence],
+    [60, 64, outro],
+    [64, 68, silence],
 )
 
 $: main
