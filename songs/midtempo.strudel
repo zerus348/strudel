@@ -110,7 +110,6 @@ const leadHigh = (progression) =>
 
 const introBass = n("0*4")
     .slow(4)
-    // .cut(1.9)
     .scale("C2:phrygian")
     .s("supersaw")
     .unison(5).detune(.8).spread(.9)
@@ -136,7 +135,6 @@ const introPad = (progression) =>
         .hpf(150).gain(.25)
         // .lpenv(3).lpa(1.5)
         .room(.9).roomsize(8)
-        .o(8)
 
 const introShimmer = (progression) =>
     n(progression)
@@ -148,7 +146,6 @@ const introShimmer = (progression) =>
         .delay(.4).delaytime(.4167).delayfeedback(.6)
         .room(1).roomsize(10)
         .gain(.08)
-        .o(9)
 
 const introAtmos = (progression) =>
     n(progression)
@@ -157,7 +154,6 @@ const introAtmos = (progression) =>
         .attack(2).release(3)
         .lpf(2500).gain(.2)
         .room(.9).roomsize(8)
-        .o(8)
 
 const introFill = s("~@12 ht mt lt lt")
     .bank("RolandTR909")
