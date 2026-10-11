@@ -8,8 +8,8 @@ const leadLineC = "<0 7 4 2>*16"
 
 const introProgression = "<[0,4,7,9] [0,2,5,7] [0,3,5,7] [0,4,7,9]>/2"
 
-const rootProgression = n("<0 0 1 0>")
-const alternateProgression = n("<0 0 3 1>")
+const rootProgression = "<0 0 1 0>"
+const alternateProgression = "<0 0 3 1>"
 const fadeIn = saw.slow(1) // fade in
 
 const leadCut = slider(3500, 300, 8000)
@@ -218,24 +218,28 @@ const partE = (progression) =>
         lead(leadLineC, progression).off(1 / 8, add(7)),
     )
 
-const outro = lead(leadLineB, rootProgression).off(1 / 8, add(7))
+const outro = stack(
+    kick.gain(saw.slow(8).range(1, 0)),
+    snare.gain(saw.slow(8).range(1, 0)),
+    bass(rootProgression).gain(saw.slow(8).range(1, 0)),
+    pulse(rootProgression).gain(saw.slow(8).range(1, 0)),
+    lead(leadLineB, rootProgression).off(1 / 8, add(7)).gain(saw.slow(8).range(1, .5)),
+)
 
-const main = stack(
-    seqPLoop(
-        [0, 23, intro],
-        [23, 24, introFill],
-        [24, 28, basePart(rootProgression)],
-        [28, 32, partA(rootProgression)],
-        [32, 36, partA(alternateProgression)],
-        [36, 40, partB(rootProgression)],
-        [40, 44, partB(alternateProgression)],
-        [44, 48, partC(alternateProgression)],
-        [48, 52, partC(rootProgression)],
-        [52, 56, partD(rootProgression)],
-        [56, 60, partE(rootProgression)],
-        [59, 61, outro],
-        [61, 64, silence],
-    )
+const main = seqPLoop(
+    [0, 23, intro],
+    [23, 24, introFill],
+    [24, 28, basePart(rootProgression)],
+    [28, 32, partA(rootProgression)],
+    [32, 36, partA(alternateProgression)],
+    [36, 40, partB(rootProgression)],
+    [40, 44, partB(alternateProgression)],
+    [44, 48, partC(alternateProgression)],
+    [48, 52, partC(rootProgression)],
+    [52, 56, partD(rootProgression)],
+    [56, 60, partE(rootProgression)],
+    [60, 68, outro],
+    [68, 72, silence],
 )
 
 $: main
