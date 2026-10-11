@@ -90,7 +90,7 @@ const lead = (leadLine, progression) =>
         .lpf(fadeIn.range(250, 3000).mul(leadCut.div(3500)))
         .lpq(fadeIn.range(1, 14))
         .distort(fadeIn.range(0, 6)).decay(.1).sustain(0).gain(fadeIn.range(.06, .15))
-        .delay(.1).delaytime(.3).delayfeedback(.6)
+        .delay(.1).delaytime(.4167).delayfeedback(.5)
         .room(.5).roomsize(6)
         .postgain(.4)
         .o(3)
