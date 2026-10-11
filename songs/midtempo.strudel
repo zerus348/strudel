@@ -1,7 +1,5 @@
 // Midtempo bass song for learning
 
-await samples('http://localhost:5173/strudel.json')
-
 setcpm(108 / 4)
 
 const leadLineA = "<4 0>*16"
