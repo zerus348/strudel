@@ -6,6 +6,8 @@ const leadLineA = "<4 0>*16"
 const leadLineB = "<0 2 4 7>*16"
 const leadLineC = "<0 7 4 2>*16"
 
+const introProgression = "<[0,4,7,9] [0,2,5,7] [0,3,5,7] [0,4,7,9]>"
+
 const rootProgression = n("<0 0 1 0>")
 const alternateProgression = n("<0 0 3 1>")
 const fadeIn = saw.slow(1) // fade in
@@ -115,14 +117,47 @@ const introBass = n("0*4")
     .penv(2).pattack(.3).pdecay(0.8).psustain(-2).panchor(0)
     .attack(.05).sustain(1).release(.1)
     .lpf(fadeIn.range(300, 2500).slow(4)).lpq(8)   // optional: opens up over the intro
-    .distort("3:.5").gain(.5)
+    .distort("3:.5").postgain(.5)
     .phaser(sine.range(.3, .5)).phaserdepth(.6)
     .room(.4)
     .delay("<0 0 0 0 .15 .4 .6 0>").delaytime(.4167).delayfeedback(.65).delaysync(1)
     .room("<0 0 0 0 .1 .2 .8 0>").roomfade(.6)
-    .mask("<1 1 1 1 1 1 1 0>")
     .o(5)
     ._pianoroll()
+
+const introPad = (progression) =>
+    n(progression)
+        .scale("C3:phrygian")
+        .s("supersaw").unison(4)
+        .detune(sine.range(.3, .8).slow(8))         // different periods so the motion
+        .lpf(perlin.range(500, 2500).slow(7))       // never lines up
+        .pan(perlin.range(.25, .75).slow(5))
+        .attack(1.2).sustain(1).release(1.2)
+        .hpf(150).gain(.25)
+        // .lpenv(3).lpa(1.5)
+        .room(.9).roomsize(8)
+        .o(8)
+
+const introShimmer = (progression) =>
+    n(progression)
+        .scale("C4:phrygian")                       // same chord, one octave up
+        .s("supersaw").unison(3).detune(1).spread(1)
+        .attack(2).sustain(1).release(4)
+        .hpf(1500).lpf(7000)                        // only the airy top
+        .pan(perlin.range(.1, .9).slow(3))          // wanders more than the pad
+        .delay(.4).delaytime(.4167).delayfeedback(.6)
+        .room(1).roomsize(10)
+        .gain(.08)
+        .o(9)
+
+const introAtmos = (progression) =>
+    n(progression)
+        .scale("C4:phrygian")
+        .s("gm_pad_choir:1,gm_pad_choir:4,gm_pad_choir") //4,ohne,1
+        .attack(2).release(3)
+        .lpf(2500).gain(.2)
+        .room(.9).roomsize(8)
+        .o(8)
 
 const introFill = s("~@12 ht mt lt lt")
     .bank("RolandTR909")
@@ -130,7 +165,10 @@ const introFill = s("~@12 ht mt lt lt")
     ._pianoroll()
 
 const intro = stack(
-    introBass,
+    introAtmos(introProgression).mask("<1@15 0>"),
+    introPad(introProgression).mask("<0@4 1@7 0>"),
+    introShimmer(introProgression).mask("<0@6 1@5 0>"),
+    introBass.mask("<0@8 1@3 0>"),
 )
 
 const basePart = (progression) =>
